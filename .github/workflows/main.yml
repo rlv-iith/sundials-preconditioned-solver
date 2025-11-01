@@ -1,0 +1,41 @@
+# GitHub Actions workflow to verify the preconditioned SUNDIALS build on Windows
+name: CI Windows Preconditioner Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Get the source code from this repository (includes your manual changes)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Important for projects that might have git submodules
+
+      # 2. Download and set up the MinGW-w64 compiler
+      - name: Set up MinGW-w64
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          version: '11.2.0' # Matches the version from winlibs
+          arch: x86_64
+
+      # 3. Verify that the build environment is working
+      - name: Verify Environment Tools
+        run: |
+          gcc --version
+          cmake --version
+
+      # 4. Run the main build script
+      - name: Execute Build Script
+        run: .\build.bat
+
+      # 5. Verify that the final executable was created and works
+      - name: Verify Executable
+        run: .\sundials\build\examples\cvode\serial\cvKrylovDemo_prec.exe
