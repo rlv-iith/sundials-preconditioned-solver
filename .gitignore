@@ -1,0 +1,5 @@
+/sundials/
+*/build/
+*.so
+*.a
+*.o
